@@ -20,6 +20,7 @@ public class Main {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-starter-app");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(StreamsConfig.CLIENT_ID_CONFIG, "client");
         // start with latest. If set to "earliest", we will start reading from the beginning of the topic if there is no
         // committed offset for the consumer.
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
@@ -27,7 +28,7 @@ public class Main {
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
         // timestamp extractor
-        config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, MyTimestampExtractor.class);
+        //config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, MyTimestampExtractor.class);
 
         StoreBuilder<KeyValueStore<String, String>> countStoreSupplier = Stores.keyValueStoreBuilder(
                 Stores.persistentKeyValueStore(Constants.STORE_NAME),
@@ -39,15 +40,15 @@ public class Main {
         topology.addSource("Source", Constants.SOURCE_TOPIC);
         topology.addSource("Source2", Constants.SOURCE_TOPIC2);
         topology.addProcessor("Processor1", () -> new HelloWorldProcessor(), "Source");
-        topology.addStateStore(countStoreSupplier, "Processor1");
         topology.addProcessor("Processor2", () -> new TopicProcessor(), "Source2");
+        topology.addStateStore(countStoreSupplier, "Processor2");
 
 
         // This statement will not work. You can "add" a state store only once.
 //        topology.addStateStore(countStoreSupplier, "Processor2");
 
         // If you want to share the state store across processors, you need to use the API below.
-        topology.connectProcessorAndStateStores("Processor2", Constants.STORE_NAME);
+        topology.connectProcessorAndStateStores("Processor1", Constants.STORE_NAME);
 
         // destination
         topology.addSink("Sink", Constants.DESTINATION_TOPIC, "Processor1");

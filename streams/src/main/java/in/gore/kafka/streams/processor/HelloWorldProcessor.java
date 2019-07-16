@@ -20,15 +20,15 @@ public class HelloWorldProcessor implements Processor<String, String> {
         {
             System.out.println("punctuate called");
             //TODO: Is this required
-            //processorContext.commit();
+            processorContext.commit();
         });
     }
 
     @Override
     public void process(String key, String value) {
-        String storeValue = keyValueStore.get("mihir");
+        String storeValue = keyValueStore.get(key);
         if(storeValue != null) {
-            System.out.println(storeValue);
+            System.out.println("key: " + key + " storeValue: " + storeValue);
         }
         System.out.println("Received message with value: " + value);
 
@@ -36,7 +36,7 @@ public class HelloWorldProcessor implements Processor<String, String> {
         processorContext.forward(key, value);
 
         // is this required?
-        //processorContext.commit();
+        processorContext.commit();
     }
 
     @Override

@@ -26,10 +26,10 @@ public class TopicProcessor implements Processor<String, String> {
 
     @Override
     public void process(String key, String value) {
-        keyValueStore.put("mihir", value);
+        keyValueStore.put(key, value);
 
         //TODO: Is this required?
-        //processorContext.commit();
+        processorContext.commit();
     }
 
     @Override
